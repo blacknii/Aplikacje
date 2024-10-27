@@ -1,0 +1,48 @@
+services:
+  # React frontend
+  frontend:
+    build:
+      context: ./example_react
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend1
+      - backend2
+    environment:
+      VITE_BACKEND1_URL: http://backend1:5000
+      VITE_BACKEND2_URL: http://backend2:5001
+
+  # Backend 1 (User API)
+  backend1:
+    build:
+      context: ./backend_1
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URI: postgresql://user:password@db:5432/mydatabase
+      SECRET_KEY: your_secret_key
+
+  # Backend 2 (Quotes API)
+  backend2:
+    build:
+      context: ./backend_2
+    ports:
+      - "5001:5001"
+    environment:
+      DATABASE_URI: postgresql://user:password@db:5432/mydatabase
+
+  # PostgreSQL database
+  db:
+    build:
+      context: ./database
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+
+volumes:
+  pgdata:
