@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors"); // Import cors
+const cors = require("cors");
 const { Pool } = require("pg");
 require("dotenv").config();
 
@@ -10,10 +10,9 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URI,
 });
 
-app.use(cors()); // Enable CORS
+app.use(cors());
 app.use(express.json());
 
-// Get all quotes
 app.get("/quotes", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM quotes");
@@ -23,7 +22,6 @@ app.get("/quotes", async (req, res) => {
   }
 });
 
-// Get a random quote
 app.get("/quotes/random", async (req, res) => {
   try {
     const result = await pool.query(

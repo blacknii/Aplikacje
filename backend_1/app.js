@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors"); // Import cors
+const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
@@ -12,7 +12,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URI,
 });
 
-app.use(cors()); // Enable CORS
+app.use(cors());
 app.use(express.json());
 
 // Register a new user
@@ -31,7 +31,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login a user
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
