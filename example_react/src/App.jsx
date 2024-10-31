@@ -46,7 +46,6 @@ function App() {
         password,
       });
       setToken(data.token);
-      setMessage("Login successful!");
     } catch (error) {
       setMessage(error.message);
     }
@@ -99,44 +98,58 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    setToken(null);
+    setFavorites([]);
+  };
+
   return (
     <div>
       <h1>Quotes App</h1>
 
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleRegister}>Register</button>
-      <button onClick={handleLogin}>Login</button>
-
-      <h2>Random Quote</h2>
-      <button onClick={fetchRandomQuote}>Get Random Quote</button>
-      {quote && (
+      {token ? (
         <div>
-          <p>
-            {quote.text} - {quote.author}
-          </p>
-          <button onClick={() => addFavorite(quote.id)}>
-            Add to Favorites
-          </button>
+          <h2>Welcome, {username}!</h2>
+          <button onClick={handleLogout}>Logout</button>
+
+          <h2>Random Quote</h2>
+          <button onClick={fetchRandomQuote}>Get Random Quote</button>
+          {quote && (
+            <div>
+              <p>
+                {quote.text} - {quote.author}
+              </p>
+              <button onClick={() => addFavorite(quote.id)}>
+                Add to Favorites
+              </button>
+            </div>
+          )}
+
+          <h2>Favorites</h2>
+          <button onClick={fetchFavorites}>Fetch Favorites</button>
+          {favorites.map((fav, idx) => (
+            <p key={idx}>
+              {fav.text} - {fav.author}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <div>
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button onClick={handleRegister}>Register</button>
+          <button onClick={handleLogin}>Login</button>
         </div>
       )}
-
-      <h2>Favorites</h2>
-      <button onClick={fetchFavorites}>Fetch Favorites</button>
-      {favorites.map((fav, idx) => (
-        <p key={idx}>
-          {fav.text} - {fav.author}
-        </p>
-      ))}
 
       {message && <p>{message}</p>}
     </div>
