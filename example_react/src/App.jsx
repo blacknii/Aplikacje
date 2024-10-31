@@ -1,16 +1,14 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [quote, setQuote] = useState(null);
   const [message, setMessage] = useState("");
+  const [favorites, setFavorites] = useState([]);
+  const [token, setToken] = useState(null);
 
-  // Function to register a new user
   const handleRegister = async () => {
     const response = await fetch("http://localhost:5000/register", {
       method: "POST",
@@ -28,7 +26,6 @@ function App() {
     }
   };
 
-  // Function to log in a user
   const handleLogin = async () => {
     const response = await fetch("http://localhost:5000/login", {
       method: "POST",
@@ -40,19 +37,63 @@ function App() {
 
     if (response.ok) {
       const data = await response.json();
-      setMessage(`Login successful! Token: ${data.token}`);
+      setToken(data.token);
+      setMessage("Login successful!");
     } else {
       const errorData = await response.json();
       setMessage(errorData.error);
     }
   };
 
-  // Function to fetch a random quote
   const fetchRandomQuote = async () => {
     const response = await fetch("http://localhost:5001/quotes/random");
     if (response.ok) {
       const data = await response.json();
-      setQuote(data.quote);
+      setQuote(data);
+    } else {
+      const errorData = await response.json();
+      setMessage(errorData.error);
+    }
+  };
+
+  const addFavorite = async (quoteId) => {
+    if (!token) {
+      setMessage("Please log in to add favorites.");
+      return;
+    }
+
+    const response = await fetch("http://localhost:5000/favorites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quoteId }),
+    });
+
+    if (response.ok) {
+      setMessage("Quote added to favorites!");
+    } else {
+      const errorData = await response.json();
+      setMessage(errorData.error);
+    }
+  };
+
+  const fetchFavorites = async () => {
+    if (!token) {
+      setMessage("Please log in to view favorites.");
+      return;
+    }
+
+    const response = await fetch("http://localhost:5000/favorites", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setFavorites(data);
     } else {
       const errorData = await response.json();
       setMessage(errorData.error);
@@ -60,57 +101,45 @@ function App() {
   };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>TEST</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
+    <div>
+      <h1>Quotes App</h1>
 
-      {/* User Registration */}
-      <h2>Register</h2>
       <input
-        type="text"
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
-        type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={handleRegister}>Register</button>
-
-      {/* User Login */}
-      <h2>Login</h2>
       <button onClick={handleLogin}>Login</button>
 
-      {/* Fetch Random Quote */}
-      <h2>Get a Random Quote</h2>
-      <button onClick={fetchRandomQuote}>Get Quote</button>
-      {quote && <p>Random Quote: {quote}</p>}
+      <h2>Random Quote</h2>
+      <button onClick={fetchRandomQuote}>Get Random Quote</button>
+      {quote && (
+        <div>
+          <p>
+            {quote.text} - {quote.author}
+          </p>
+          <button onClick={() => addFavorite(quote.id)}>
+            Add to Favorites
+          </button>
+        </div>
+      )}
 
-      {/* Messages */}
+      <h2>Favorites</h2>
+      <button onClick={fetchFavorites}>Fetch Favorites</button>
+      {favorites.map((fav, idx) => (
+        <p key={idx}>
+          {fav.text} - {fav.author}
+        </p>
+      ))}
+
       {message && <p>{message}</p>}
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   );
 }
 
