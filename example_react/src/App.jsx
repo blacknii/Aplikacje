@@ -9,50 +9,55 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [token, setToken] = useState(null);
 
-  const handleRegister = async () => {
-    const response = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+  const apiRequest = async (
+    url,
+    method = "GET",
+    body = null,
+    requireAuth = false
+  ) => {
+    const headers = { "Content-Type": "application/json" };
+    if (requireAuth && token) headers.Authorization = `Bearer ${token}`;
 
-    if (response.ok) {
+    const options = { method, headers };
+    if (body) options.body = JSON.stringify(body);
+
+    const response = await fetch(url, options);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    return data;
+  };
+
+  const handleRegister = async () => {
+    try {
+      await apiRequest("http://localhost:5000/register", "POST", {
+        username,
+        password,
+      });
       setMessage("User registered successfully!");
-    } else {
-      const errorData = await response.json();
-      setMessage(errorData.error);
+    } catch (error) {
+      setMessage(error.message);
     }
   };
 
   const handleLogin = async () => {
-    const response = await fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const data = await apiRequest("http://localhost:5000/login", "POST", {
+        username,
+        password,
+      });
       setToken(data.token);
       setMessage("Login successful!");
-    } else {
-      const errorData = await response.json();
-      setMessage(errorData.error);
+    } catch (error) {
+      setMessage(error.message);
     }
   };
 
   const fetchRandomQuote = async () => {
-    const response = await fetch("http://localhost:5001/quotes/random");
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const data = await apiRequest("http://localhost:5001/quotes/random");
       setQuote(data);
-    } else {
-      const errorData = await response.json();
-      setMessage(errorData.error);
+    } catch (error) {
+      setMessage(error.message);
     }
   };
 
@@ -62,20 +67,16 @@ function App() {
       return;
     }
 
-    const response = await fetch("http://localhost:5000/favorites", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quoteId }),
-    });
-
-    if (response.ok) {
+    try {
+      await apiRequest(
+        "http://localhost:5000/favorites",
+        "POST",
+        { quoteId },
+        true
+      );
       setMessage("Quote added to favorites!");
-    } else {
-      const errorData = await response.json();
-      setMessage(errorData.error);
+    } catch (error) {
+      setMessage(error.message);
     }
   };
 
@@ -85,18 +86,16 @@ function App() {
       return;
     }
 
-    const response = await fetch("http://localhost:5000/favorites", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const data = await apiRequest(
+        "http://localhost:5000/favorites",
+        "GET",
+        null,
+        true
+      );
       setFavorites(data);
-    } else {
-      const errorData = await response.json();
-      setMessage(errorData.error);
+    } catch (error) {
+      setMessage(error.message);
     }
   };
 
@@ -111,6 +110,7 @@ function App() {
       />
       <input
         placeholder="Password"
+        type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

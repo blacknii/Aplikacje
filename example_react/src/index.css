@@ -66,3 +66,25 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.App {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1, h2 {
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 5px 10px;
+  margin: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  padding: 5px;
+  margin: 5px;
+}
