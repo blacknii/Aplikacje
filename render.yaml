@@ -1,20 +1,21 @@
+version: 1
 services:
   frontend:
-    type: docker
+    type: web
     name: frontend
     env: docker
     dockerfilePath: ./example_react/Dockerfile
     buildCommand: yarn install && yarn build
     startCommand: yarn start
     plan: free
-    healthCheckPath: /
     envVars:
       VITE_BACKEND1_URL: http://backend1:5000
       VITE_BACKEND2_URL: http://backend2:5001
     autoDeploy: true
+    healthCheckPath: /
 
   backend1:
-    type: docker
+    type: web
     name: backend1
     env: docker
     dockerfilePath: ./backend_1/Dockerfile
@@ -27,7 +28,7 @@ services:
     autoDeploy: true
 
   backend2:
-    type: docker
+    type: web
     name: backend2
     env: docker
     dockerfilePath: ./backend_2/Dockerfile
