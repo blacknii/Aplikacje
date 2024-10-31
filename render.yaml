@@ -1,0 +1,49 @@
+services:
+  frontend:
+    type: docker
+    name: frontend
+    env: docker
+    dockerfilePath: ./example_react/Dockerfile
+    buildCommand: yarn install && yarn build
+    startCommand: yarn start
+    plan: free
+    healthCheckPath: /
+    envVars:
+      VITE_BACKEND1_URL: http://backend1:5000
+      VITE_BACKEND2_URL: http://backend2:5001
+    autoDeploy: true
+
+  backend1:
+    type: docker
+    name: backend1
+    env: docker
+    dockerfilePath: ./backend_1/Dockerfile
+    buildCommand: yarn install
+    startCommand: yarn start
+    plan: free
+    envVars:
+      DATABASE_URI: postgresql://user:password@db:5432/mydatabase
+      SECRET_KEY: your_secret_key
+    autoDeploy: true
+
+  backend2:
+    type: docker
+    name: backend2
+    env: docker
+    dockerfilePath: ./backend_2/Dockerfile
+    buildCommand: yarn install
+    startCommand: yarn start
+    plan: free
+    envVars:
+      DATABASE_URI: postgresql://user:password@db:5432/mydatabase
+    autoDeploy: true
+
+  db:
+    type: postgres
+    name: db
+    plan: free
+    databaseName: mydatabase
+    user: user
+    password: password
+    env: docker
+    autoDeploy: true
