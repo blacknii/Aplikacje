@@ -1,43 +1,39 @@
 services:
-  - type: web
-    name: frontend
-    env: static # Alternatively, docker if needed
-    plan: free
-    buildCommand: npm install && npm run build
-    staticPublishPath: /build
+  - name: frontend
+    type: web
+    env: static
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: build
     routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_BACKEND1_URL
-        value: https://backend1-service.onrender.com
-      - key: VITE_BACKEND2_URL
-        value: https://backend2-service.onrender.com
+      - type: redirect
+        from: /
+        to: https://frontend.onrender.com
 
-  - type: web
-    name: backend1
-    plan: free
+  - name: backend1
+    type: web
     env: docker
+    plan: free
     dockerfilePath: ./backend_1/Dockerfile
     envVars:
-      - key: DATABASE_URI
-        value: <database-connection-string>
+      - key: DATABASE_URL
+        fromDatabase: mydatabase
       - key: SECRET_KEY
         value: your_secret_key
 
-  - type: web
-    name: backend2
-    plan: free
+  - name: backend2
+    type: web
     env: docker
+    plan: free
     dockerfilePath: ./backend_2/Dockerfile
     envVars:
-      - key: DATABASE_URI
-        value: <database-connection-string>
+      - key: DATABASE_URL
+        fromDatabase: mydatabase
 
-  - type: postgres
-    name: db
+  - name: mydatabase
+    type: database
     plan: free
     databaseName: mydatabase
+    engine: postgres
     user: user
     password: password
+    initialDatabase: mydatabase
