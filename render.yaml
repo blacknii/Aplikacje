@@ -30,7 +30,7 @@ services:
         fromDatabase: mydatabase
 
   - name: mydatabase
-    type: database
+    type: postgres
     plan: free
     databaseName: mydatabase
     engine: postgres
